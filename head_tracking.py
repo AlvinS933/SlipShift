@@ -3,6 +3,7 @@ import mediapipe as mp
 import time
 import numpy as np
 import pygame
+landmark_reference_url = "https://github.com/google-ai-edge/mediapipe/blob/e0eef9791ebb84825197b49e09132d3643564ee2/mediapipe/modules/face_geometry/data/canonical_face_model_uv_visualization.png"
 #--------- Face Setup ---------
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(
@@ -121,6 +122,9 @@ while True:
                 facial_points[i].draw(frame)
             if time.time() - player_hit_time > player_recover_time:
                 player_hit = False
+        #game over 
+        if health <= 0:
+            cv2.putText(frame, "Knockout! Game Over!", (w//2 - 150, h//2), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)
     #health bar
     cv2.rectangle(frame, (10, 10), (10 + health, 30), GREEN, -1)
     #spawn new punch
@@ -130,7 +134,9 @@ while True:
         new_y = int((0.1 + 0.8 * time.time() % 1) * frame.shape[0])
         punches.append(PunchCircle(new_x, new_y, 5, 3, current_time))
         last_spawn_time = current_time
+
     cv2.imshow("Face Tracking", frame)
+    
     if cv2.waitKey(1) & 0xFF == 27:  # ESC to quit
         break
 
