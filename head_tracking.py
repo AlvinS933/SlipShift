@@ -3,6 +3,7 @@ import mediapipe as mp
 import time
 import numpy as np
 import pygame
+import random
 landmark_reference_url = "https://github.com/google-ai-edge/mediapipe/blob/e0eef9791ebb84825197b49e09132d3643564ee2/mediapipe/modules/face_geometry/data/canonical_face_model_uv_visualization.png"
 #--------- Face Setup ---------
 mp_face_mesh = mp.solutions.face_mesh
@@ -61,7 +62,7 @@ class FacialPoint:
         else:
             self.color = (0,255,0)
     def check_hit(self, punches):
-        for punch in punches:
+        for punch in punches[:]:
             if punch.hit(self.x, self.y) and punch.landed:
                 self.hit = True
                 return True
@@ -130,8 +131,8 @@ while True:
     #spawn new punch
     current_time = time.time()
     if current_time - last_spawn_time > punch_spawn_cooldown:
-        new_x = int((0.1 + 0.8 * time.time() % 1) * frame.shape[1])
-        new_y = int((0.1 + 0.8 * time.time() % 1) * frame.shape[0])
+        new_x = np.random.randint(80, frame.shape[1] - 80)
+        new_y = np.random.randint(80, frame.shape[0] - 80)
         punches.append(PunchCircle(new_x, new_y, 5, 3, current_time))
         last_spawn_time = current_time
 
