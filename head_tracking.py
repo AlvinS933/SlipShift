@@ -5,6 +5,10 @@ import numpy as np
 import pygame
 import random
 landmark_reference_url = "https://github.com/google-ai-edge/mediapipe/blob/e0eef9791ebb84825197b49e09132d3643564ee2/mediapipe/modules/face_geometry/data/canonical_face_model_uv_visualization.png"
+YELLOW = (0, 255, 255)
+GREEN = (0, 255, 0)
+RED = (0, 0, 255)
+ORANGE = (0, 165, 255)
 #--------- Face Setup ---------
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(
@@ -27,7 +31,7 @@ class PunchCircle:
         self.grow_speed = grow_speed
         self.last_punch_time = last_punch_time
         self.landed = False
-        self.COLOR = (0, 100, 255)
+        self.COLOR = ORANGE
     def draw_circle(self, frame, time_now=None):
         if time_now is None:
             time_now = time.time()
@@ -36,7 +40,7 @@ class PunchCircle:
         if self.radius > self.max_radius:
             self.grow_speed = 0
             self.landed = True
-            self.COLOR = (0, 0, 255)
+            self.COLOR = RED
         if self.landed and time_now - self.last_punch_time > self.landed_threshold_time:
             punches.remove(self)
         cv2.circle(frame, (self.x, self.y), self.radius, self.COLOR, -1)
@@ -60,7 +64,7 @@ class FacialPoint:
         if color:
             self.color = color
         else:
-            self.color = (0,255,0)
+            self.color = GREEN
     def check_hit(self, punches):
         for punch in punches[:]:
             if punch.hit(self.x, self.y) and punch.landed:
@@ -69,7 +73,7 @@ class FacialPoint:
         self.hit = False
         return False
     def draw(self, frame):
-        color = (0, 255, 0) if not self.hit else (0, 255, 255)
+        color = GREEN if not self.hit else YELLOW
         size = 2 if not self.hit else 4
         cv2.circle(frame, (self.x, self.y), size, color, -1)
 
@@ -81,8 +85,6 @@ cap = cv2.VideoCapture(0)
 punch_spawn_cooldown = 2.0
 last_spawn_time = time.time() - punch_spawn_cooldown
 health = 500
-YELLOW = (0, 255, 255)
-GREEN = (0, 255, 0)
 player_hit = False
 player_recover_time = 2.0
 player_hit_time = 0
@@ -125,7 +127,7 @@ while True:
                 player_hit = False
         #game over 
         if health <= 0:
-            cv2.putText(frame, "Knockout! Game Over!", (w//2 - 150, h//2), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)
+            cv2.putText(frame, "Knockout! Game Over!", (w//2 - 150, h//2), cv2.FONT_HERSHEY_SIMPLEX, 1, RED, 3)
     #health bar
     cv2.rectangle(frame, (10, 10), (10 + health, 30), GREEN, -1)
     #spawn new punch
